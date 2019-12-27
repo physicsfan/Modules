@@ -43,7 +43,7 @@ module constants
 
 
   ! Define simple constants
-  REAL(kind=8), PARAMETER :: zero  = 0.0,    &
+  REAL(kind=8), PARAMETER :: zero  = 0.0d0,    &
        one   = 1.0d0,    &
        two   = 2.0d0,    &
        three = 3.0d0,    &
