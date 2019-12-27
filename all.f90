@@ -479,54 +479,7 @@ contains
       end do
       
     end subroutine genint
-  
-    !> function to find the location of an integral in the list
-    Integer Function Index ( k, label )
-
-    !> k     -- integral type, k<0 is I integral
-    !> index -  index of an integral in canonical order
-    !           (ia <= ib; if k <0)
-    !           (ia <= ic; ib <= id; ia <= ib  if k>=0)
-    Integer, intent(in)  :: k, label
-
-    !>  il -- lower bound
-    !>  iu -- upper bound
-    !>  im -- mid-point
-    Integer  :: il, im, iu
-    
-    if (k < 0) then
-       il =1; iu = Int_end(1)
-    else
-       il = Int_end(k+1)+1 ; iu = Int_end(k+2)
-    end if
-
-    do
-      if (iu-il >  1) then
-         im = (iu + il)/2
-         if ( label > int_label(im)) then
-           il = im
-         else if ( label < int_label(im)) then
-           iu = im
-         else if (label == int_label(im)) then
-           index = im    
-           exit
-         end if
-       else if (iu-il == 1) then
-         if ( label == int_label(iu)) then
-           index = iu
-           exit
-         else if ( label ==  int_label(il)) then
-           index = il 
-           exit
-         else
-            index = -1
-            Print *, index, ' not found'
-            exit
-         end if
-      end if
-    end do
-    end function index
-        
+          
     subroutine write_labels
      
     Integer :: i, lab, k, ia, ib, ic, id, istart, n
@@ -735,7 +688,54 @@ inner:     DO ja = 1, jb           ! ja and jb loop over all upper  matrix eleme
     deallocate(tshell, tindex, vshell, vindex, label)
  
   END SUBROUTINE genmat
- 
+
+    !> function to find the location of an integral in the list
+    INTEGER FUNCTION find_index ( k, label )
+
+    !> k     -- integral type, k<0 is I integral
+    !> index -  index of an integral in canonical order
+    !           (ia <= ib; if k <0)
+    !           (ia <= ic; ib <= id; ia <= ib  if k>=0)
+    Integer, intent(in)  :: k, label
+
+    !>  il -- lower bound
+    !>  iu -- upper bound
+    !>  im -- mid-point
+    Integer  :: il, im, iu
+    
+    if (k < 0) then
+       il =1; iu = Int_end(1)
+    else
+       il = Int_end(k+1)+1 ; iu = Int_end(k+2)
+    end if
+
+    do
+      if (iu-il >  1) then
+         im = (iu + il)/2
+         if ( label > int_label(im)) then
+           il = im
+         else if ( label < int_label(im)) then
+           iu = im
+         else if (label == int_label(im)) then
+           index = im    
+           exit
+         end if
+       else if (iu-il == 1) then
+         if ( label == int_label(iu)) then
+           index = iu
+           exit
+         else if ( label ==  int_label(il)) then
+           index = il 
+           exit
+         else
+            index = -1
+            Print *, index, ' not found'
+            exit
+         end if
+      end if
+    end do
+  END FUNCTION find_index
+  
 End MODULE matrix_elements
 
 !====================================================================
