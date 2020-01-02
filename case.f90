@@ -1,19 +1,6 @@
 MODULE case
+  Use constants
   IMPLICIT NONE
-
-  ! About the Atom    
-
-  !> Z       :: atomic number
-  !> A       :: nuclear mass
-  !> APRAM, CPRAM ::Paremeters defining the nuclear skin
-  !> RRMS    :: root means square radius
-  INTEGER    :: z, a
-  REAL(kind=8)   :: apram, cpram, rrms
-  
-  ! Type  of calculation
-  ! c_speed    :: Speed of light used in the calculation
-  !               (infinity for non-relativistic calculation)
-  REAL (kind=8)  :: c_speed =  c_au
 
   ! Basic Size dimensions of a calculation
   !> ncore   -- number of core orbitals
@@ -31,6 +18,31 @@ MODULE case
   !> jblk    -- array for the J-value of each block
   !> pblk    -- parity of each block
   INTEGER, DIMENSION(:), ALLOCATABLE :: jend, jblk, pblk
-      
+
+! About the Atom
+
+
+  !> Z       :: atomic number
+  !> A_mass  :: nuclear mass number
+   Character(20) :: nuclear = 'Fermi'
+  !> nuclear = point   - point nuclear
+  !> nuclear = uniform - uniform distribution
+  !> nuclear = fermi   - Fermi distibution
+  !> r_uniform :: parameter for uniform distribution
+  !> ro_uniform :: parameter for uniform distriubtion
+  !> A_fermi, C_fermi ::Paremeters defining the nuclear skin
+  !> RRMS    :: root means square radius
+  !> I_nuc   :: nuclear spin (I) (in units of h/2*pi)
+  !> D_nuc   :: nuclear dipole moment (in nuclear magnetoms)
+  !> Q_nuc   :: nuclear quadrupole moment (in barns)
+  Integer  :: z, a_mass
+  Real(8)  :: r_uniform,  a_fermi, c_fermi, rrms,  &
+                  I_nuc,  D_nuc, Q_nuc
+  Real(8)  :: ro_uniform  
+
+  ! Type  of calculation
+  ! c_speed    :: Speed of light used in the calculation
+  !               (infinity for non-relativistic calculation)
+   Real (kind=8)  :: c_speed =  c_au
 
 END MODULE case

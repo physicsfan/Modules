@@ -1,11 +1,12 @@
-module constants 
+  module constants 
 
   ! Constants or parameters that define the implementation
 
   IMPLICIT NONE
-
   
    ! Basic Data 
+!>  Parameter defining the maximum number of points in the grid
+   INTEGER, PARAMETER :: npX = 600
    !> NNNW  -maximum number of orbitals 
    INTEGER, PARAMETER :: NNNW=127 
    !>  key  -- key for encoding data
@@ -21,16 +22,16 @@ module constants
    ! Parameters for matrix elements 
    REAL(kind=8) :: cutoff = 1.0d-10 
 
-  ! Define UNIT numbers for I/O in grasp:
-  INTEGER ::  istde=0, istdi=5,  istdo=6
-   
   ! Define UNIT numbers for RANGULAR I/O: 
-  INTEGER, PARAMETER :: nfile = 10 
-  INTEGER, PARAMETER :: outfile=13 
+  INTEGER, PARAMETER :: nfile   = 10 
+  INTEGER, PARAMETER :: outfile = 13 
   INTEGER, PARAMETER :: isofile = 22
   INTEGER, PARAMETER :: rwfndat = 23
   INTEGER, parameter :: rwfnout = 24
   
+  ! Define UNIT numbers for I/O in grasp:
+  INTEGER ::  istde=0, istdi=5,  istdo=6
+
   ! Define kind-constants
 !!$  INTEGER, PARAMETER :: int4 = selected_int_KIND(9)
 !!$  INTEGER, PARAMETER :: int2 = selected_int_KIND(4)
@@ -40,10 +41,8 @@ module constants
 !!$  INTEGER, PARAMETER :: dp = selected_real_KIND(2*PRECISION(1.0_sp))
 !!$  INTEGER, PARAMETER :: qp = selected_real_KIND(2*PRECISION(1.0_dp))
   
-
-
   ! Define simple constants
-  REAL(kind=8), PARAMETER :: zero  = 0.0d0,    &
+  REAL(kind=8), PARAMETER :: zero  = 0.0,    &
        one   = 1.0d0,    &
        two   = 2.0d0,    &
        three = 3.0d0,    &
@@ -57,7 +56,9 @@ module constants
        half  = one/two,   &
        third = one/three
 
-  ! ... some useful physical constants
+      real(8) :: PI = 4.0D0*ATAN(1.0D0)
+
+! ... some useful physical constants
 ! ... (based on NIST compilation 2001) from DBSR_HF   (variables in GRASP)
 
       real(kind=8), parameter ::                        &
@@ -80,4 +81,4 @@ module constants
       RinfeV                 =    13.605693009d+0,  &  !Ryberg in eV
       Rinfk                  =    109737.31568508d+0  !Rydberg in Kaysers
 
-end module constants
+end module constants 
