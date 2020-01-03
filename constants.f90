@@ -5,8 +5,6 @@
   IMPLICIT NONE
   
    ! Basic Data 
-!>  Parameter defining the maximum number of points in the grid
-   INTEGER, PARAMETER :: npX = 600
    !> NNNW  -maximum number of orbitals 
    INTEGER, PARAMETER :: NNNW=127 
    !>  key  -- key for encoding data
@@ -24,13 +22,14 @@
 
   ! Define UNIT numbers for RANGULAR I/O: 
   INTEGER, PARAMETER :: nfile   = 10 
-  INTEGER, PARAMETER :: outfile = 13 
+  INTEGER, PARAMETER :: outfile = 13
+  INTEGER, PARAMETER :: infile  = 14 
   INTEGER, PARAMETER :: isofile = 22
   INTEGER, PARAMETER :: rwfndat = 23
   INTEGER, parameter :: rwfnout = 24
   
   ! Define UNIT numbers for I/O in grasp:
-  INTEGER ::  istde=0, istdi=5,  istdo=6
+  INTEGER, PARAMETER ::  istde=0, istdi=5,  istdo=6
 
   ! Define kind-constants
 !!$  INTEGER, PARAMETER :: int4 = selected_int_KIND(9)
@@ -56,7 +55,7 @@
        half  = one/two,   &
        third = one/three
 
-      real(8) :: PI = 4.0D0*ATAN(1.0D0)
+  real(8) :: PI = 4.0D0*ATAN(1.0D0)
 
 ! ... some useful physical constants
 ! ... (based on NIST compilation 2001) from DBSR_HF   (variables in GRASP)

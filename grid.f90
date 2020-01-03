@@ -1,7 +1,10 @@
+
 !====================================================================
    MODULE grid
 !====================================================================
       Use case
+!>  Parameter defining the maximum number of points in the grid
+      INTEGER, PARAMETER :: npX = 600
 !>  Parameter for the set-size and the first non-zero point
       REAL(kind=8), PARAMETER :: H = 1.d0/32, RNT= 1.d0/2**19,  &
                       th=log(1.d0+h),  th3 = th/3.d0, th90=th/90.d0

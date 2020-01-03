@@ -1,3 +1,4 @@
+
 MODULE radial
 !***********************************************************************
       Use Grid
@@ -18,7 +19,7 @@ MODULE radial
       INTEGER, Dimension(:), allocatable :: pz, gamma,  npt, nodes, sigma
 
 !      Nuclear properties
-       REAL(kind=8), DIMENSION(:), allocatable :: zz_nuc
+       REAL(kind=8), DIMENSION(:), allocatable :: zz
  
       Real(8), dimension(npX) :: F, yK 
 
@@ -26,7 +27,7 @@ MODULE radial
       !> allocate memory for radial functions
       SUBROUTINE allocate_radials
          allocate(P(npX,nw),Q(npX,nw),DP(npX,nw), DQ(npX,nw))
-         allocate(e(nw),scf(nw), npt(nw), nodes(nw), sigma(nw), zz_nuc(npX), pz(nw), gamma(nw))
+         allocate(e(nw),scf(nw), npt(nw), nodes(nw), sigma(nw), zz(npX), pz(nw), gamma(nw))
       END SUBROUTINE allocate_radials
 
 
@@ -95,7 +96,7 @@ MODULE radial
       Int1 = q(:,ia)*dp(:,ib) - p(:,ia)*dq(:,ib)
       Int2 = (q(:,ia)*p(:,ib) + p(:,ia)*q(:,ib))
       Int3 =  q(:,ia)*q(:,ib)*r
-      Int4 =  zz_nuc(:)*(p(:,ia)*p(:,ib) + q(:,ia)*q(:,ib))
+      Int4 =  zz(:)*(p(:,ia)*p(:,ib) + q(:,ia)*q(:,ib))
       Print *, ' c = ', c
       Print *, ' quad(Int1) =', quad(int1)
       Print *, ' quad(Int2) =', quad(int2)
