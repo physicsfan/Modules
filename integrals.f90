@@ -1,4 +1,4 @@
-module GenIntegrals
+module Integrals
 
   Use radial
   implicit none
@@ -8,8 +8,9 @@ module GenIntegrals
   !>               Rk(abcd) label ia, ib, ic, id for category k+1
   !>Int_end    --  integer index array indicating the last position
   !                 for integrals in category k+2, .. j2max+2
-  Integer, dimension(:), allocatable   ::  Int_label, Int_end
-  Real(8), dimension(:), allocatable   ::  Int_value
+  Integer, dimension(:), allocatable   ::  Int_label, Int_end 
+  Real(8), dimension(:), allocatable   ::  Int_value,  Int_wt
+  Logical, dimension(:), allocatable   ::  lval, int_varied
 
   ! Needed functions
   !> triangrk  -- computes the triangle relationship
@@ -87,21 +88,53 @@ contains
             if (gen) Int_end(k+2) = n 
          end do
 
-         
-         
          ! Allocate memory for integral book keeping
          if (.not. gen) then
             ! Number of integrals
             Int_num = n
             allocate(int_Label(1:n))
-            if (mode == 1) allocate(int_Value(1:n))
+            if (mode == 1) then
+               allocate(int_Value(1:n), int_varied(1:n), int_wt(1:n))
+               int_Value =0.d0; int_varied= .true.
+!              when lval=.true. the Int_val is updated
+            end if
             gen = .true.
             n=0
          end if
       end do
 
     end subroutine genint
-  
+
+!>  Update Int_val data
+    subroutine update_int
+       implicit none 
+       integer :: i, ia, ib, ic, id, istart, k, lab 
+     
+    do i =1, Int_end(1)
+       if (int_varied(i) ) then
+           ib =  MOD(int_Label(i), key)
+           ia = int_label(i)/key
+           call rinti(ia,ib,int_value(i))
+        end if
+    end do  
+    istart = int_end(1)+1
+    do k = 0, kmax
+       do i = istart, Int_end(k+2)
+         if (int_varied(i) ) then
+           lab = int_label(i)
+           id = mod(lab, key)
+           lab = lab/key
+           ib = mod(lab,key)
+           lab = lab/key
+           ic = mod(lab,key)
+           ia = lab/key
+           call slater(k,ia,ib,ic,id, int_value(i))
+         end if
+       ENd do
+       istart = Int_end(k+2)+1
+     end do
+    End subroutine update_int
+
     !> function to find the location of an integral in the list
     Integer Function index ( k, label )
 
@@ -179,4 +212,4 @@ contains
     end subroutine write_labels
 
            
-EnD Module Genintegrals
+EnD Module integrals

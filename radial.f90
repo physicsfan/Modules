@@ -1,10 +1,8 @@
+
 MODULE radial
 !***********************************************************************
-  USE orbs_csfs  
-  USE Grid
-  
-   
-      IMPLICIT NONE
+      Use Grid
+      Use orbs_csfs
    
 !     Data structure for Radial Functions
       !> P, Q    -- large and small  components of the radial functions
@@ -14,22 +12,18 @@ MODULE radial
 !     Properties of radial functions
       !> e       -- diagonal energy parameter
       !> scf     -- scf_consistency
-      REAL(8), DIMENSION(:), ALLOCATABLE :: e,scf, pz, gamma
+      REAL(8), Dimension(:), allocatable :: e,scf
       !> npt      -- number of points
       !> nodes   -- number of amplitudes
       !> sigma   -- orbital screening
-      INTEGER, Dimension(:), allocatable :: npt, nodes, sigma
+      INTEGER, Dimension(:), allocatable :: pz, gamma,  npt, nodes, sigma
 
 !      Nuclear properties
        REAL(kind=8), DIMENSION(:), allocatable :: zz
+ 
+      Real(8), dimension(npX) :: F, yK 
 
-!      Integral properties
-       !> ykid :: key for the last computed yk(i, i, j)
-       INTEGER :: ykid = 0
-       REAL(8), DIMENSION(npX) :: F, yK 
-
-    CONTAINS
-      
+   CONTAINS
       !> allocate memory for radial functions
       SUBROUTINE allocate_radials
          allocate(P(npX,nw),Q(npX,nw),DP(npX,nw), DQ(npX,nw))
@@ -49,24 +43,25 @@ MODULE radial
          DP(1:npX,ia) = 0.d0
          DQ(1:npX,ia) = 0.d0
 
+         n = npt(ia)
          i = 2
          den = 1.d0/(2.d0*th)
          dp(i,ia) = (P(i+1,ia) - P(i-1,ia))*den
          dq(i,ia) = (Q(i+1,ia) - Q(i-1,ia))*den
          i = 3
          den = 1.d0/(th*12.d0)
-         dp(i,ia) = (8.d0*(P(i+1,ia)-P(i-1,ia))  &
-                         - P(i+2,ia)+P(i-2,ia))*den
-         dq(i,ia) = (8.d0*(Q(i+1,ia)-Q(i-1,ia))  &
-                         - Q(i+2,ia)+Q(i-2,ia))*den
+         dp(i,ia) = (8.d0*(P(i+1,ia)-P(i-1,ia)  &
+                         - P(i+2,ia)+P(i-2,ia)))*den
+         dq(i,ia) = (8.d0*(Q(i+1,ia)-Q(i-1,ia)  &
+                         - Q(i+2,ia)+Q(i-2,ia)))*den
          den = 1.d0/(60.d0*th) 
          DO I = 4, NPx-4
-           dp(i,ia) = ( 45.d0*(P(i+1,ia)-P(i-1,ia))  &
+           dp(i,ia) = ( 45.d0*(P(i+1,ia)-P(i-1,ia)  &
                         -9.d0*(P(i+2,ia)-P(i-2,ia)) &
-                          +   (P(i+3,ia)-P(i-3,ia)))*den
-           dq(i,ia) = ( 45.d0*(Q(i+1,ia)-Q(i-1,ia))  &
+                          +   (P(i+3,ia)-P(i-3,ia))))*den
+           dq(i,ia) = ( 45.d0*(Q(i+1,ia)-Q(i-1,ia)  &
                         -9.d0*(Q(i+2,ia)-Q(i-2,ia)) &
-                          +   (Q(i+3,ia)-Q(i-3,ia)))*den
+                          +   (Q(i+3,ia)-Q(i-3,ia))))*den
          end do
 
        END Subroutine NumericalDP
@@ -84,32 +79,33 @@ MODULE radial
       Integer, intent(in) :: ia, ib
       Real(8), intent(out):: ans
    
-      Integer :: i, kappa 
+      Integer :: i,n, kappa 
       Real(8), DIMENSION(npx) :: Int1, Int2, Int3, Int4
       Real(8) :: c
 
      
       c = c_speed
-      IF (nak(ia) /= nak(ib)) THEN
+      If (nak(ia) /= nak(ib)) then
          Write(99, '(A)') 'Error in Rinti -- kappa values not the same'
-         STOP
-      ELSE
-         kappa = nak(ia)
-      END IF
+         stop
+      else
+        kappa = nak(ia)
+      end if
+  
+      n = min(npt(ia), npt(ib))
 
       Int1 = 0.d0; Int2 = 0.d0; Int3 = 0.d0; Int4 = 0.d0 
       Int1 = q(:,ia)*dp(:,ib) - p(:,ia)*dq(:,ib)
       Int2 = (q(:,ia)*p(:,ib) + p(:,ia)*q(:,ib))
       Int3 =  q(:,ia)*q(:,ib)*r
       Int4 =  zz(:)*(p(:,ia)*p(:,ib) + q(:,ia)*q(:,ib))
-      PRINT *, ' c = ', c
-      PRINT *, ' kappa = ', kappa
+      Print *, ' c = ', c
       Print *, ' quad(Int1) =', quad(int1)
       Print *, ' quad(Int2) =', quad(int2)
       Print *, ' quad(Int3) =', quad(int3)
       Print *, ' quad(Int4) =', quad(int4)
       ans  = c*(quad(Int1) + kappa*quad(Int2)) - 2.d0*c*c*quad(Int3) &
-               - quad(Int4)
+               + quad(Int4)
 
       End Subroutine rinti 
     
@@ -223,7 +219,8 @@ MODULE radial
 
         call ykf(k, ia, ic)
         
-        int = yk*(p(:,ib)*p(:,id) + q(:,ib)*q(:,id))
+        int = yk*p(:,ib)*p(:,id)
 !       slater  = quad(int)
         ans  = quad(int)
       End subroutine  slater
+END MODULE radial

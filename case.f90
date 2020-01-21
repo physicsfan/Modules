@@ -11,13 +11,15 @@ MODULE case
   !> kmax    -- maximum value of k = 2*lmax
   !> mx      -- maximun number of subshells in a csf (<= NNNW)
   !> ncsf    -- number of CSFs
-  INTEGER :: ncore, nw, nblock, lmax, int_num, kmax, ncsf, mx
+  !> m_el    -- number of matrix elements
+  INTEGER :: ncore, nw, nblock, lmax, int_num, kmax, ncsf, mx, m_el
 
   ! JBlock data structures
   !> jend    -- array indicating the last CSF in the i'th JBLOCK
   !> jblk    -- array for the J-value of each block
   !> pblk    -- parity of each block
-  INTEGER, DIMENSION(:), ALLOCATABLE :: jend, jblk, pblk
+  !> m_end   -- last matrix element for each block
+  INTEGER, DIMENSION(:), ALLOCATABLE :: jend, jblk, pblk, m_end
 
 ! About the Atom
 
