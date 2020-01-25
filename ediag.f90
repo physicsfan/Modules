@@ -220,9 +220,10 @@
 
     SUBROUTINE print_diagonals
 
-      k = 1; coeff_label = 2146435
+      PRINT *, 'Print Diagonals'
+      PRINT *
+      PRINT *, emt
       
-      PRINT *, 'Index test:', k, coeff_label, INDEX(k,coeff_label)
 
     END SUBROUTINE print_diagonals
 
