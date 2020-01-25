@@ -193,8 +193,7 @@
 !              .. F0(a,b)
                coeff_label = ((ia*key+ia)*key +ib)*key +ib
                vindex = INDEX(0,coeff_label)
-               IF (vindex .NE. -1)
-               emt(j) = emt(j) + qa*qb*int_value(vindex)
+               IF (vindex .NE. -1) emt(j) = emt(j) + qa*qb*int_value(vindex)
              end if
 !             .. if either ia or ib is full
              IF (sa == 1 .OR. sb ==1) THEN
