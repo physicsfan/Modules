@@ -12,11 +12,11 @@ MODULE radial
 !     Properties of radial functions
       !> e       -- diagonal energy parameter
       !> scf     -- scf_consistency
-      REAL(8), Dimension(:), allocatable :: e,scf
+      REAL(8), DIMENSION(:), ALLOCATABLE :: e,scf, pz
       !> npt      -- number of points
       !> nodes   -- number of amplitudes
       !> sigma   -- orbital screening
-      INTEGER, Dimension(:), allocatable :: pz, gamma,  npt, nodes, sigma
+      INTEGER, Dimension(:), allocatable :: gamma,  npt, nodes, sigma
 
 !      Nuclear properties
        REAL(kind=8), DIMENSION(:), allocatable :: zz
@@ -210,7 +210,7 @@ MODULE radial
 
 
 !     Real(8) Function Slater(k,ia,ib,ic,id)
-      Subroutine  Slater(k,ia,ib,ic,id,ans)
+      SUBROUTINE  Slater(k,ia,ib,ic,id,ans)
         IMPLICIT NONE
         Integer, intent(in) :: k,ia,ib,ic,id
         Real(8), intent(out) :: ans
@@ -221,6 +221,309 @@ MODULE radial
         
         int = yk*p(:,ib)*p(:,id)
 !       slater  = quad(int)
-        ans  = quad(int)
-      End subroutine  slater
+       ans  = quad(int)
+     END SUBROUTINE  slater
+
+!=======================================================================
+!                                                                      *
+     SUBROUTINE write_radials  
+!                                                                      *
+!   Write all subshell radial wavefunctions in binary format to        *
+!   "rwfn.out" file.                                                   *
+!                                                                      *
+!=======================================================================
+       IMPLICIT NONE
+       INTEGER :: i, j, ierr
+  
+       OPEN (rwfnout, FILE='rwfn.out', FORM='unformatted', STATUS='replace', iostat=ierr)  
+
+       IF (ierr == 1) THEN 
+          WRITE (istde, *) 'Error when opening ''rwfn.out'''
+          STOP  
+       ENDIF
+      
+       !   Binary file output
+       WRITE (rwfnout) 'G92RWF'
+       DO J = 1, NW
+          WRITE (rwfnout) INT(NP(J)), INT(NAK(J)), E(J), NPT(j) 
+          WRITE (rwfnout) PZ(J), (P(I,J),I=1,NPT(j)), (Q(I,J),I=1,NPT(j))
+          WRITE (rwfnout) (R(I),I=1,NPT(J)) 
+       END DO
+       
+       CLOSE(rwfnout) 
+
+    END SUBROUTINE write_radials
+
+
+!======================================================================
+!
+    SUBROUTINE load_radials
+!                                                                      *
+!                                                                      *
+!   This subroutine loads radial wavefunctions from the rwfn.inp file. *
+!                                                                      *
+!   Call(s) to: [Library]: INTRPQ                                      *
+!======================================================================  
+      IMPLICIT NONE
+  
+      ! local variables
+      INTEGER :: i, ierr, ios, j, k, npty
+      INTEGER :: npy, naky
+      REAL(kind=8) :: ey, pzy, dnorm, accy
+      CHARACTER(len=6) :: g92rwf
+      REAL(kind=8), DIMENSION(:), ALLOCATABLE :: py, qy, ry
+  
+      accy = h**6
+  
+      OPEN (rwfnin, FILE='rwfn.inp', FORM='unformatted', STATUS='old', iostat=ierr)  
+          
+      ! Check the file; if not as expected, try again              
+      READ (rwfnin) g92rwf 
+      IF (G92RWF/='G92RWF') stop  'This is not a Radial WaveFunction File;' 
+
+      ! Read orbital information from Read Orbitals File   
+      DO i = 1, nw
+         READ (rwfnin) npy, naky, ey, npty
+         
+         ALLOCATE(py(npty),qy(npty),ry(npty))
+         
+         READ (rwfnin) pzy, py(1:npty), qy(1:npty)
+         READ (rwfnin) ry(1:npty)
+         IF (ABS(r(2)-ry(2)).GT.accy) THEN
+            e(i) = ey
+            pz(i) = pzy
+            CALL INTRPQ (py, qy, npty, ry, i, DNORM)
+         ELSE
+            e(i) = ey
+            pz(i) = pzy
+            p(:,i) = py(:)
+            q(:,i) = qy(:)
+         END IF
+         !   Determine the effective maximum tabulation point
+         k=npx
+         DO
+            IF (ABS(p(k,i)) .GT. 1.d-16) EXIT
+            k = k - 1
+         END DO
+         npt(i) = k
+         DEALLOCATE(py,qy,ry)
+      END DO
+        
+      CLOSE(rwfnin)
+      
+    END SUBROUTINE load_radials
+
+
+
+  !***********************************************************************
+!                                                                      *
+    SUBROUTINE INTRPQ(PA, QA, MA, RA, J, DNORM) 
+!                                                                      *
+!   This  subprogram  interpolates  the  arrays  PA(1:MA), QA(1:MA),   *
+!   tabulated on grid RA(1:MA) into the COMMON arrays PF(1:MF(J),J),   *
+!   QF(1:MF(J),J). (Aitken's  algorithm is used. See F B Hildebrand,   *
+!   Introduction  to  Numerical  Analysis, 2nd ed., McGraw-Hill, New   *
+!   York, NY, 1974.) The orbital is renormalized.                      *
+!                                                                      *
+!                                                                      *
+!   Written by Farid A Parpia, at Oxford    Last update: 14 Oct 1992   *
+!                                                                      *
+!***********************************************************************
+!...Translated by Pacific-Sierra Research 77to90  4.3E  15:37:49   2/14/04  
+!...Modified by Charlotte Froese Fischer 
+!                     Gediminas Gaigalas  10/05/17
+
+      IMPLICIT NONE
+!-----------------------------------------------
+!   D u m m y   A r g u m e n t s
+!-----------------------------------------------
+      INTEGER, INTENT(IN) :: MA 
+      INTEGER  :: J 
+      REAL(kind=8), INTENT(OUT) :: DNORM 
+      REAL(kind=8), DIMENSION(ma), INTENT(IN) :: PA, QA, RA
+!-----------------------------------------------
+!   L o c a l   P a r a m e t e r s
+!-----------------------------------------------
+      INTEGER, PARAMETER :: MXORD = 13 
+!-----------------------------------------------
+!   L o c a l   V a r i a b l e s
+!-----------------------------------------------
+      INTEGER :: I, MFJ, NRSTLO, KOUNT, IROW, K, NRSTHI, LLO, LHI, LOCNXT, &
+           ILIROK, ILDIAG, ILOTHR, n
+      REAL(kind=8) :: RAMA, accy
+      INTEGER, DIMENSION(NNNW) :: MF       
+      REAL(kind=8), DIMENSION(MXORD) :: X, DX 
+      REAL(kind=8), DIMENSION((MXORD*(MXORD + 1))/2) :: POLYP, POLYQ 
+      REAL(kind=8) :: XBAR, PESTL, QESTL, DIFF, DIFFT, DXKMN1, DXIROW, &
+           FACTOR, PESTT, QESTT, DPBP, DQBQ, DNFAC
+      REAL(kind = 8), DIMENSION(npx) :: ta
+      LOGICAL :: SET 
+      LOGICAL, DIMENSION(npx) :: USED 
+!-----------------------------------------------
+!
+!
+!   This function dispenses with the need for a two-dimensional
+!   array
+!
+!
+!   Initialization
+!
+      ACCY = 1.0d-08 
+!
+!   This is always true in GRASP
+!
+      P(1,J) = 0.0D00 
+      Q(1,J) = 0.0D00 
+!
+!   Determine end of grid
+!
+      mfj = npx 
+      DO
+         IF (R(mfj) <= RA(MA)) EXIT
+         mfj = mfj - 1
+      END DO
+      
+!          PRINT *, 'npx:', npx
+!          PRINT *, ' ma:', ma
+!          PRINT *, 'mfj:', mfj
+!          PRINT *, 'RA(MA):', ra(ma)
+!          PRINT *, 'RA(MA+1):', ra(ma+1)
+!          PRINT *, 'R(mfj):', r(mfj)
+!          PRINT *, 'R(mfj+1):', r(mfj+1)
+!
+!   Overall initialization for interpolation
+!
+      NRSTLO = 0 
+      KOUNT = 0
+!
+!   Perform interpolation
+!
+      DO I = 2, MFJ 
+!
+!   Initialization for interpolation
+!
+         XBAR = R(I) 
+         IROW = 0 
+         PESTL = 0.0D00 
+         QESTL = 0.0D00 
+!
+!   Determine the nearest two grid points bounding the present
+!   grid point
+!
+         DO
+            k = nrstlo + 1
+            IF (RA(k) >= XBAR) EXIT
+            nrstlo = k
+         END DO
+         nrsthi = k
+         
+!             PRINT *, '   xbar:', xbar
+!             PRINT *, 'nrstlo:', nrstlo
+!             PRINT *, 'nrsthi:', nrsthi
+!
+!   Clear relevant piece of use-indicator array
+!
+         LLO = MAX(NRSTLO - MXORD,1) 
+         LHI = MIN(NRSTHI + MXORD,MA) 
+         USED(LLO:LHI) = .FALSE. 
+!
+!   Determine next-nearest grid point
+!
+4        CONTINUE 
+         IROW = IROW + 1 
+         LLO = MAX(NRSTLO - IROW + 1,1) 
+         LHI = MIN(NRSTHI + IROW - 1,MA) 
+         SET = .FALSE. 
+         DO K = LLO, LHI 
+            IF (USED(K)) CYCLE  
+            IF (.NOT.SET) THEN 
+               DIFF = RA(K) - XBAR 
+               LOCNXT = K 
+               SET = .TRUE. 
+            ELSE 
+               DIFFT = RA(K) - XBAR 
+               IF (ABS(DIFFT) < ABS(DIFF)) THEN 
+                  DIFF = DIFFT 
+                  LOCNXT = K 
+               ENDIF
+            ENDIF
+         END DO
+         USED(LOCNXT) = .TRUE. 
+         X(IROW) = RA(LOCNXT) 
+         DX(IROW) = DIFF 
+!
+!   Fill table for this row
+!
+         DO K = 1, IROW 
+            ILIROK = (irow*(irow - 1))/2 + k
+            IF (K == 1) THEN 
+               POLYP(ILIROK) = PA(LOCNXT) 
+               POLYQ(ILIROK) = QA(LOCNXT) 
+            ELSE 
+               ILDIAG = ((k - 1)*(k - 2))/2 + k - 1 
+               ILOTHR = (irow*(irow - 1))/2 + k - 1 
+               DXKMN1 = DX(K-1) 
+               DXIROW = DX(IROW) 
+               FACTOR = 1.0D00/(X(IROW)-X(K-1)) 
+               POLYP(ILIROK) = (POLYP(ILDIAG)*DXIROW-POLYP(ILOTHR)*DXKMN1)*&
+                    FACTOR 
+               POLYQ(ILIROK) = (POLYQ(ILDIAG)*DXIROW-POLYQ(ILOTHR)*DXKMN1)*&
+                    FACTOR 
+            ENDIF
+         END DO
+!
+!   Check for convergence
+!
+         ILDIAG = (irow*(irow - 1))/2 + irow 
+         PESTT = POLYP(ILDIAG) 
+         QESTT = POLYQ(ILDIAG)
+         IF (PESTT==0.0D00 .OR. QESTT==0.0D00) THEN 
+            IF (IROW < MXORD) THEN 
+               GO TO 4 
+            ELSE 
+               P(I,J) = PESTT 
+               Q(I,J) = QESTT 
+            ENDIF
+         ELSE 
+            DPBP = ABS((PESTT - PESTL)/PESTT) 
+            DQBQ = ABS((QESTT - QESTL)/QESTT) 
+            IF (DQBQ<ACCY .AND. DPBP<ACCY) THEN 
+               P(I,J) = PESTT 
+               Q(I,J) = QESTT 
+            ELSE 
+               PESTL = PESTT 
+               QESTL = QESTT 
+               IF (IROW < MXORD) THEN 
+                  GO TO 4 
+               ELSE 
+                  P(I,J) = PESTT 
+                  Q(I,J) = QESTT 
+                  KOUNT = KOUNT + 1 
+               ENDIF
+            ENDIF
+         ENDIF
+!
+      END DO
+!
+!   Ensure that all points of the array are defined by setting the
+!   tail to zero
+! 
+      P(MFJ+1:npx,J) = 0.0D00 
+      Q(MFJ+1:npx,J) = 0.0D00
+!
+!
+!   Normalization
+!
+      ta = r*(p(:,j)*p(:,j) + q(:,j)*q(:,j))           
+      DNORM = quad(ta)
+      DNFAC = 1.0D00/SQRT(DNORM)
+!          PRINT *, 'dnorm', dnorm
+!          PRINT *, 'dnfac', dnfac
+      P(:MFJ,J) = P(:MFJ,J)*DNFAC 
+      Q(:MFJ,J) = Q(:MFJ,J)*DNFAC 
+!
+      RETURN  
+      
+    END SUBROUTINE intrpq
+    
 END MODULE radial

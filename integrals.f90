@@ -155,31 +155,52 @@ contains
        il = Int_end(k+1)+1 ; iu = Int_end(k+2)
     end if
 
-    do
-      if (iu-il >  1) then
-         im = (iu + il)/2
-         if ( label > int_label(im)) then
-           il = im
-         else if ( label < int_label(im)) then
-           iu = im
-         else if (label == int_label(im)) then
-           index = im    
-           exit
-         end if
-       else if (iu-il == 1) then
-         if ( label == int_label(iu)) then
-           index = iu
-           exit
-         else if ( label ==  int_label(il)) then
-           index = il 
-           exit
-         else
-            index = -1
-            Print *, index, ' not found'
-            exit
-         end if
-      end if
+       
+    ! perform binary search
+    im = (il + iu) /2
+    do while(int_label(im) /= label .and. (iu-il) >  0)
+       if (label > int_label(im)) then
+          il = im + 1
+       else
+          iu = im - 1
+       end if
+       im = (il + iu)/2
     end do
+
+    ! return postion of element
+
+    IF(int_label(im) /= label) THEN
+      index = -1
+    else
+      index = im
+   END IF
+
+   
+!!$    do
+!!$      if (iu-il >  1) then
+!!$         im = (iu + il)/2
+!!$         if ( label > int_label(im)) then
+!!$           il = im
+!!$         else if ( label < int_label(im)) then
+!!$           iu = im
+!!$         else if (label == int_label(im)) then
+!!$           index = im    
+!!$           exit
+!!$         end if
+!!$       else if (iu-il == 1) then
+!!$         if ( label == int_label(iu)) then
+!!$           index = iu
+!!$           exit
+!!$         else if ( label ==  int_label(il)) then
+!!$           index = il 
+!!$           exit
+!!$         else
+!!$            index = -1
+!!$            Print *, index, ' not found'
+!!$            exit
+!!$         end if
+!!$      end if
+!!$    end do
     end function index
         
     subroutine write_labels
@@ -191,7 +212,7 @@ contains
     do i =1, Int_end(1)
         ib =  MOD(int_Label(i), key)
         ia = int_label(i)/key
-        Write (6, FMT="(I2, 2X, 'I(', A4, ',', A4,')')" ) n,  el(ia), el(ib)
+        WRITE (6, FMT="(I2, 2X, I8, 2X, 'I(', A4, ',', A4,')')" ) n,  int_label(i), el(ia), el(ib)
         n = n+1
     end do  
     istart = int_end(1)+1
@@ -204,7 +225,7 @@ contains
            lab = lab/key
            ic = mod(lab,key)
            ia = lab/key
-           write (6, '(I2,2X,A,I2,A,4(A4,1X),A)' ) n, 'R', k,'(', el(ia), el(ib), el(ic), el(id), ')'
+           WRITE (6, '(I2,2X,I8,2X,A,I2,A,4(A4,1X),A)' ) n, int_label(i), 'R', k,'(', el(ia), el(ib), el(ic), el(id), ')'
            n = n+1
         ENd do
         istart = Int_end(k+2)+1

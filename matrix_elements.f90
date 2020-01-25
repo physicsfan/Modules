@@ -5,9 +5,9 @@ MODULE matrix_elements
   !> onescalar  -- computes the Tcoeffs and returns corresponding ia, ib
   !> rkco    -- computes the Vcoeffs and returns ia, ib, ic, id
     Integer, dimension(:), allocatable :: m_ja, m_jb, m_nt, m_nv
-    REAL(8), DIMENSION(:), ALLOCATABLE :: tcoeff, vcoeff
+    REAL(8), DIMENSION(:), ALLOCATABLE :: coeff, tcoeff, vcoeff
     INTEGER, DIMENSION(:), ALLOCATABLE :: tindex, vindex
-    Integer :: t_total, v_total
+    INTEGER :: t_total, v_total
   
   
 CONTAINS
@@ -26,13 +26,14 @@ CONTAINS
     INTEGER, DIMENSION(:,:), ALLOCATABLE :: label
 
     ! initialize
-    ALLOCATE(tcoeff(nw), tindex(nw), vcoeff(nw), vindex(nw))
+    ALLOCATE(coeff(nw), tcoeff(nw), tindex(nw), vcoeff(nw), vindex(nw))
     t_total = 0; v_total = 0
     Allocate(m_end(nblock))
     ALLOCATE(label(5,nw))
 
-    tmp = 999
+    tmp = 999; !tdatfile = 100; vdatfile = 101
     OPEN(tmp,  FORM='UNFORMATTED', STATUS='unknown')
+
 
     WRITE(6, '(a,i3)' ) 'NW', nw 
     WRITE(6, '(a,i3)') "Nblocks", nblock
@@ -55,10 +56,11 @@ inner:     DO ja = 1, jb           ! ja and jb loop over all upper  matrix eleme
 !
 !  Generate t coefficients.
 !
-             nt = 0
+            nt = 0
              tcoeff = 0.0; tindex = 0
              ! onescalar is a fake function that reads in data from old rangular
-             CALL onescalar(ja,jb,ia,ib,tcoeff)      
+             CALL onescalar(ja,jb,ia,ib,tcoeff)
+             !PRINT *, tcoeff
              DO i = 1, SIZE(tcoeff)
                 IF ((ia .NE. 0) .AND. (ia .NE. ib) .AND. (ABS(tcoeff(i)) .GT. cutoff)) THEN             
                    nt = nt + 1
@@ -68,47 +70,50 @@ inner:     DO ja = 1, jb           ! ja and jb loop over all upper  matrix eleme
                       ia = iswap
                    ENDIF
                    coeff_label= ia*key + ib
-                   tindex(i) = index(-1, coeff_label)     ! found in genint
+                   tindex(i) = INDEX(-1, coeff_label)     ! found in genint
                 ENDIF
              END DO
 !
 !  Generate V coefficients; ac and bd are the density pairs.
 !      
              nv = 0
-             vcoeff = 0.0; vindex = 0
+             coeff = 0.0; vcoeff = 0.0; vindex = 0
              ! rkco ia a fake function that reads in data from old rangular
-             CALL rkco(ja,jb,label,vcoeff)
+             CALL rkco(ja,jb,label,coeff)
              IF(label(1,1) == -1) EXIT outer  ! end of a block has been reached
-             DO j = 1, SIZE(vcoeff)
-                IF(ABS(vcoeff(j)) .GT. cutoff) THEN
-                   nv = nv + 1
+             DO j = 1, SIZE(coeff)
+                IF(ABS(coeff(j)) .GT. cutoff) THEN
                    k  = label(1,j)
                    ia = label(2,j)
                    ib = label(3,j)
                    ic = label(4,j)
                    id = label(5,j)
-                   ! Swap index to make sure IA <= IC, IB <= ID, IA <= IB
-                   IF (ia .GT. ic) THEN
-                     iswap = ic
-                     ic = ia
-                     ia = iswap
+                   IF (.NOT.((k.EQ.0).AND.(ia.EQ.ic).AND.(ib.EQ.id))) THEN
+                      nv = nv + 1
+                      ! Swap index to make sure IA <= IC, IB <= ID, IA <= IB
+                      IF (ia .GT. ic) THEN
+                         iswap = ic
+                         ic = ia
+                         ia = iswap
+                      ENDIF
+                      IF (ib .GT. id) THEN
+                         iswap = id
+                         id = ib
+                         ib = iswap
+                      ENDIF
+                      IF (ia .GT. ib) THEN
+                         ! need to swap both pairs of indicies
+                         iswap = ib
+                         ib = ia
+                         ia = iswap
+                         iswap = id
+                         id = ic
+                         ic = iswap
+                      END IF
+                      coeff_label = ((ia*key+ic)*key+ib)*key+id                        
+                      vindex(j) = INDEX(k,coeff_label)
+                      vcoeff(j) = coeff(j)
                    ENDIF
-                   IF (ib .GT. id) THEN
-                      iswap = id
-                      id = ib
-                      ib = iswap
-                   ENDIF
-                   IF (ia .GT. ib) THEN
-                      ! need to swap both pairs of indicies
-                      iswap = ib
-                      ib = ia
-                      ia = iswap
-                      iswap = id
-                      id = ic
-                      ic = iswap
-                   END IF
-                   coeff_label = ((ia*key+ic)*key+ib)*key+id                        
-                   vindex(j) = index(k,coeff_label)
                 ENDIF
              END DO
              ! output or save matrix element data 
@@ -153,7 +158,8 @@ inner:     DO ja = 1, jb           ! ja and jb loop over all upper  matrix eleme
     WRITE(6,'(a,i3)') 'Total number of v coefficients generated:', v_total
 
     deallocate(tcoeff, tindex, vcoeff,  vindex, label)
- 
+
+    
   END SUBROUTINE genmat
  
   SUBROUTINE readmat(infile)
@@ -193,6 +199,8 @@ inner:     DO ja = 1, jb           ! ja and jb loop over all upper  matrix eleme
 
    End subroutine readmat
 
+
+   
    Subroutine update_wt
      implicit none
      integer :: i, j, ja, jb, m, nt, nv, it, iv, iit, iiv, blk
@@ -225,5 +233,6 @@ inner:     DO ja = 1, jb           ! ja and jb loop over all upper  matrix eleme
           if (i == m_end(blk)) blk = blk+1
        end do
     End subroutine update_wt
-          
+
+
  END module matrix_elements

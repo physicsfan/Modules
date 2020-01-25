@@ -31,6 +31,7 @@ MODULE orbs_csfs
 !
 !-----------------------------------------------
 
+      
 CONTAINS
  
    SUBROUTINE load_orbs(nfile)           
@@ -43,7 +44,7 @@ CONTAINS
 !
 !   Read the records
       READ (nfile,'(A)') str1 
-      Print *, str1
+!      Print *, str1
       If (str1(1:5) .ne. 'Core') then
          Write(6, *) 'Error in rcsf.inp file'
          stop
@@ -77,9 +78,9 @@ CONTAINS
 !     ...  Load the CSFs (we are assuming only one block)
         
       READ (orblist, '(100(I2,A2))') ( NP(i), NH(i), i=1,nw)
-      !Print *, 'Orblist =', trim(orblist)
-      !Print *, 'NP(i)=', np(1:nw)
-      !Print *, 'NH(i)=', nh(1:nw)
+ !     Print *, 'Orblist =', trim(orblist)
+ !     Print *, 'NP(i)=', np(1:nw)
+ !     Print *, 'NH(i)=', nh(1:nw)
       Do  i=1,nw
           ii = (index(symlist,nh(i)) +1)/2
           IIB2 = II/2
@@ -94,10 +95,10 @@ CONTAINS
           oparity(i) = 1
           If ( mod(nkl(i),2) .gt. 0 ) oparity(i) = -1
       End do
-      !print *, 'nkl = ', nkl(1:nw)
-      !print *, 'nak = ', nak(1:nw)
-      !print *, 'nkj = ', nkj(1:nw)
-      !print *, 'oparity =', oparity(1:nw)
+  !    print *, 'nkl = ', nkl(1:nw)
+  !    print *, 'nak = ', nak(1:nw)
+  !    print *, 'nkj = ', nkj(1:nw)
+  !    print *, 'oparity =', oparity(1:nw)
     
     RETURN
   END SUBROUTINE load_orbs
@@ -121,8 +122,8 @@ CONTAINS
 !-----------------------------------------------
 
 !   Load orbitals first....
-    CALL load_orbs(nfile)
-      
+!    CALL load_orbs(nfile)
+
 !     .. initialize CSF data
     ALLOCATE(iqa(nw,ncsf), stype(nw,ncsf), sparity(nw,ncsf), jcupa(nw, ncsf))
     ALLOCATE(jqsa(nw, 3, ncsf))

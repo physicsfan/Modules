@@ -146,7 +146,8 @@
           ENDIF 
           do k = kmin, (nkja+nkjb)/2, 2
             coeff_label = ((ia*key+ib)*key +ia)*key +ib
-            vindex = index(k,coeff_label)
+            vindex = INDEX(k,coeff_label)
+            IF(vindex == -1) cycle
             ecore = ecore - qa*qb*clrx(nak(ia),k,nak(ib))**2 &
                             *int_value(vindex)
           end do
@@ -157,7 +158,7 @@
 !----------------------------------------------------------------------
 !   Diagonal energies for all blocks
 
-    Subroutine  Ediag
+    SUBROUTINE  Ediag
       Implicit none
       Integer :: j, sa, sb, qa, qb
       
@@ -168,7 +169,7 @@
         nkja = nkj(ia)
         Do IB = max(ncore+1,IA), nw
            nkjb = nkj(ib)
-           Do j = 1,ncsf
+           DO j = 1,ncsf
              qa = iqa(ia, j);  if (qa == 0) cycle
              sa = stype(ia,j)
              qb = iqa(ib, j);  if (qb == 0) cycle
@@ -191,28 +192,39 @@
                End do
 !              .. F0(a,b)
                coeff_label = ((ia*key+ia)*key +ib)*key +ib
-               vindex = index(0,coeff_label)
+               vindex = INDEX(0,coeff_label)
+               IF (vindex .NE. -1)
                emt(j) = emt(j) + qa*qb*int_value(vindex)
              end if
 !             .. if either ia or ib is full
-             if (sa == 1 .or. sb ==1) then
+             IF (sa == 1 .OR. sb ==1) THEN
 !              .. GK(a,b)
                IF (NAK(IA)*NAK(IB) > 0) THEN 
                  KMIN = ABS((NKJA - NKJB)/2) 
                ELSE 
                  KMIN = ABS((NKJA - NKJB)/2) + 1 
                ENDIF 
-               do k = kmin, (nkja+nkjb)/2, 2
-                 coeff_label = ((ia*key+ib)*key +ia)*key +ib
-                 vindex = index(k,coeff_label)
+               DO k = kmin, (nkja+nkjb)/2, 2
+                  coeff_label = ((ia*key+ib)*key +ia)*key +ib
+                  vindex = INDEX(k,coeff_label)
+                  IF(vindex == -1) cycle
                  emt(j) = emt(j) - qa*qb*clrx(nak(ia), k, nak(ib))**2 &
-                                   *int_value(vindex)
+                      *int_value(vindex)
                end do
-             end if
-           end do
+            END IF
+         END DO
+!         if (ia == ib) PRINT *, ia, ib, emt
          End do     
       End do
     
-    End subroutine ediag
+    END SUBROUTINE ediag
+
+    SUBROUTINE print_diagonals
+
+      k = 1; coeff_label = 2146435
+      
+      PRINT *, 'Index test:', k, coeff_label, INDEX(k,coeff_label)
+
+    END SUBROUTINE print_diagonals
 
   End module diagonal_energies
