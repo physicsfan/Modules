@@ -81,10 +81,12 @@ CONTAINS
  !     Print *, 'Orblist =', trim(orblist)
  !     Print *, 'NP(i)=', np(1:nw)
  !     Print *, 'NH(i)=', nh(1:nw)
+      lmax = 0
       Do  i=1,nw
           ii = (index(symlist,nh(i)) +1)/2
           IIB2 = II/2
           NKL(i) = IIB2
+          lmax = max(lmax,nkl(i))
           IF (MOD(II,2) == 1) THEN
             NAK(i) = (-IIB2) - 1
             NKJ(i) = II
@@ -95,6 +97,8 @@ CONTAINS
           oparity(i) = 1
           If ( mod(nkl(i),2) .gt. 0 ) oparity(i) = -1
       End do
+      kmax = 2*lmax
+      print *, 'lmax=',lmax, 'kmax =', kmax
   !    print *, 'nkl = ', nkl(1:nw)
   !    print *, 'nak = ', nak(1:nw)
   !    print *, 'nkj = ', nkj(1:nw)
