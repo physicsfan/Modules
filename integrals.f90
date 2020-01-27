@@ -45,7 +45,7 @@ contains
 ! integrals or a list with evaluated integrals.
 !
 ! This is controlled by the argument: "evaluated"
-
+     
       gen = .false.
       n=0
       do i = 1, 2
@@ -55,7 +55,7 @@ contains
                   n = n + 1
                   if (gen) then
                      Int_Label(n)  = ia*key + ib
-                     if (mode==1)  call rinti(ia,ib,int_value(n))
+                     if (mode .eq. 1)  call rinti(ia,ib,int_value(n))
                   endif
                end if
             end do
@@ -77,7 +77,7 @@ contains
                               n = n + 1
                               if (gen) then
                                  int_Label(n) = ((ia*key+ic)*key+ib)*key+id
-                                 if (mode==1) call slater(k,ia,ib,ic,id, int_value(n))
+                                 if (mode .eq. 1) call slater(k,ia,ib,ic,id, int_value(n))
                               end if
                            end if
                         end do
@@ -93,7 +93,7 @@ contains
             ! Number of integrals
             Int_num = n
             allocate(int_Label(1:n))
-            if (mode == 1) then
+            if (mode .eq.  1) then
                allocate(int_Value(1:n), int_varied(1:n), int_wt(1:n))
                int_Value =0.d0; int_varied= .true.
 !              when lval=.true. the Int_val is updated
@@ -102,7 +102,6 @@ contains
             n=0
          end if
       end do
-
     end subroutine genint
 
 !>  Update Int_val data
@@ -112,8 +111,8 @@ contains
      
     do i =1, Int_end(1)
        if (int_varied(i) ) then
-           ib =  MOD(int_Label(i), key)
-           ia = int_label(i)/key
+           ib = ibits(int_label(i),0,7)
+           ia = ibits(int_label(i),7,7)
            call rinti(ia,ib,int_value(i))
         end if
     end do  
@@ -121,13 +120,10 @@ contains
     do k = 0, kmax
        do i = istart, Int_end(k+2)
          if (int_varied(i) ) then
-           lab = int_label(i)
-           id = mod(lab, key)
-           lab = lab/key
-           ib = mod(lab,key)
-           lab = lab/key
-           ic = mod(lab,key)
-           ia = lab/key
+           id = ibits(int_label(i),0,7)
+           ib = ibits(int_label(i),7,7)
+           ic = ibits(int_label(i),14,7)
+           ia = ibits(int_label(i),21,7)
            call slater(k,ia,ib,ic,id, int_value(i))
          end if
        ENd do
@@ -207,25 +203,23 @@ contains
      
     Integer :: i, lab, k, ia, ib, ic, id, istart, n
 
-    Print *, int_end(1:kmax+2)
+    Print *, 'kmax =', kmax, 'Int_end =', int_end(1:kmax+2)
     n=1
     do i =1, Int_end(1)
-        ib =  MOD(int_Label(i), key)
-        ia = int_label(i)/key
-        WRITE (6, FMT="(I2, 2X, I8, 2X, 'I(', A4, ',', A4,')')" ) n,  int_label(i), el(ia), el(ib)
+        ib = ibits(int_Label(i),0,7)
+        ia = ibits(int_label(i),7,7)
+        Write (6, FMT="(I2, 2X, 'I(', A4, ',', A4,')', I10, F12.8)" ) n,  el(ia), el(ib), int_label(i), int_value(i)
         n = n+1
     end do  
     istart = int_end(1)+1
     do k = 0, kmax
        do i = istart, Int_end(k+2)
-           lab = int_label(i)
-           id = mod(lab, key)
-           lab = lab/key
-           ib = mod(lab,key)
-           lab = lab/key
-           ic = mod(lab,key)
-           ia = lab/key
-           WRITE (6, '(I2,2X,I8,2X,A,I2,A,4(A4,1X),A)' ) n, int_label(i), 'R', k,'(', el(ia), el(ib), el(ic), el(id), ')'
+           id = ibits(int_label(i),0,7)
+           ib = ibits(int_label(i),7,7)
+           ic = ibits(int_label(i),14,7)
+           ia = ibits(int_label(i),21,7)
+           write (6, '(I2,2X,A,I2,A,4(A4,1X),A, I10, F12.8)' ) n, 'R', k,'(', el(ia), el(ib), &
+                  el(ic), el(id), ')', int_label(i), int_value(i)
            n = n+1
         ENd do
         istart = Int_end(k+2)+1
