@@ -307,6 +307,7 @@ MODULE radial
          END DO
          npt(i) = k
          DEALLOCATE(py,qy,ry)
+         call numericalDP(i)
       END DO
         
       CLOSE(rwfnin)
