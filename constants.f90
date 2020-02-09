@@ -64,9 +64,9 @@
       real(kind=8), parameter ::                        &
       bohr_radius_in_cm      =    0.5291772083d-8,  &  !AINFCM
       ao_cm                  =    0.5291772083d-8,  &
-      one_over_alpha         =    137.03599976d+0,  &  !ALFAI
-      alpha                  =    7.297352533d-3,   &
-      c_au                   =    137.03599976d0,   &  !CCPMS (cm/s)
+      one_over_alpha         =    137.035999084d+0,  &  !ALFAI
+      alpha                  =    7.2973525693d-3,   &
+      c_au                   =    137.035999084d0,   &  !CCPMS (cm/s)
       electron_charge_in_C   =    1.602176462d-19,  &
       electron_charge_in_esu =    4.803204673d-10,   &  !EESU
       electron_mass_in_g     =    9.10938188d-28,   &  !EMEG

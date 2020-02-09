@@ -177,7 +177,7 @@ CONTAINS
              PRINT *, '  Ending CSF         ', jend(j)
              PRINT *, '  J and parity       ', jstr(nsub)(7:9)
              jqs1=0; jqs3=1; jcup=0;  iocc=0
-             IF (str(1:2) .EQ. ' *')  CYCLE
+             IF (str(1:2) .EQ. ' *')  EXIT
              IF (IOS .NE. 0) EXIT
           END IF
 !
