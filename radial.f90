@@ -299,16 +299,15 @@ MODULE radial
             e(i) = ey
             pz(i) = pzy
             CALL INTRPQ (py, qy, npty, ry, i, DNORM)
-         ELSE IF (npty .GT. npx) THEN
-            e(i) = ey
-            pz(i) = pzy
-            p(1:npx,i) = py(1:npx)
-            q(1:npx,i) = qy(1:npx)
          ELSE
             e(i) = ey
             pz(i) = pzy
-            p(:,i) = py(:)
-            q(:,i) = qy(:)
+            p(1:npty,i) = py(:)
+            q(1:npty,i) = qy(:)
+            IF (npty+1 .LT. npX) THEN
+               p(npty+1:npX,i) = 0.d0
+               q(npty+1:npX,i) = 0.d0
+            END IF
          END IF
          !   Determine the effective maximum tabulation point
          k=npx
