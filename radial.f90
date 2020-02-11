@@ -51,18 +51,18 @@ MODULE radial
          dq(i,ia) = (Q(i+1,ia) - Q(i-1,ia))*den
          i = 3
          den = 1.d0/(th*12.d0)
-         dp(i,ia) = (8.d0*(P(i+1,ia)-P(i-1,ia)  &
-                         - P(i+2,ia)+P(i-2,ia)))*den
-         dq(i,ia) = (8.d0*(Q(i+1,ia)-Q(i-1,ia)  &
-                         - Q(i+2,ia)+Q(i-2,ia)))*den
+         dp(i,ia) = (8.d0*(P(i+1,ia)-P(i-1,ia))  &
+                         - P(i+2,ia)+P(i-2,ia))*den
+         dq(i,ia) = (8.d0*(Q(i+1,ia)-Q(i-1,ia))  &
+                         - Q(i+2,ia)+Q(i-2,ia))*den
          den = 1.d0/(60.d0*th) 
          DO I = 4, NPx-4
-           dp(i,ia) = ( 45.d0*(P(i+1,ia)-P(i-1,ia)  &
+           dp(i,ia) = ( 45.d0*(P(i+1,ia)-P(i-1,ia))  &
                         -9.d0*(P(i+2,ia)-P(i-2,ia)) &
-                          +   (P(i+3,ia)-P(i-3,ia))))*den
-           dq(i,ia) = ( 45.d0*(Q(i+1,ia)-Q(i-1,ia)  &
+                          +   (P(i+3,ia)-P(i-3,ia)))*den
+           dq(i,ia) = ( 45.d0*(Q(i+1,ia)-Q(i-1,ia))  &
                         -9.d0*(Q(i+2,ia)-Q(i-2,ia)) &
-                          +   (Q(i+3,ia)-Q(i-3,ia))))*den
+                          +   (Q(i+3,ia)-Q(i-3,ia)))*den
          end do
 
        END Subroutine NumericalDP
