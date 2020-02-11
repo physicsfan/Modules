@@ -273,8 +273,13 @@ MODULE radial
       REAL(kind=8) :: ey, pzy, dnorm, accy
       CHARACTER(len=6) :: g92rwf
       REAL(kind=8), DIMENSION(:), ALLOCATABLE :: py, qy, ry
-  
-      accy = h**6
+
+      ! Initialize
+      accy = 1.0d-08
+      p(1:npX,1:nw) = 0.d0
+      q(1:npX,1:nw) = 0.d0
+      pz(1:nw) = 0.d0
+      e(1:nw) = 0.d0
   
       OPEN (rwfnin, FILE='rwfn.inp', FORM='unformatted', STATUS='old', iostat=ierr)  
           
@@ -294,6 +299,11 @@ MODULE radial
             e(i) = ey
             pz(i) = pzy
             CALL INTRPQ (py, qy, npty, ry, i, DNORM)
+         ELSE IF (npty .GT. npx) THEN
+            e(i) = ey
+            pz(i) = pzy
+            p(1:npx,i) = py(1:npx)
+            q(1:npx,i) = qy(1:npx)
          ELSE
             e(i) = ey
             pz(i) = pzy
