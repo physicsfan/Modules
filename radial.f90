@@ -276,10 +276,6 @@ MODULE radial
 
       ! Initialize
       accy = 1.0d-08
-      p(1:npX,1:nw) = 0.d0
-      q(1:npX,1:nw) = 0.d0
-      pz(1:nw) = 0.d0
-      e(1:nw) = 0.d0
   
       OPEN (rwfnin, FILE='rwfn.inp', FORM='unformatted', STATUS='old', iostat=ierr)  
           
