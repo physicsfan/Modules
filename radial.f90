@@ -27,7 +27,8 @@ MODULE radial
       !> allocate memory for radial functions
       SUBROUTINE allocate_radials
          allocate(P(npX,nw),Q(npX,nw),DP(npX,nw), DQ(npX,nw))
-         allocate(e(nw),scf(nw), npt(nw), nodes(nw), sigma(nw), zz(npX), pz(nw), gamma(nw))
+         ALLOCATE(e(nw),scf(nw), npt(nw), nodes(nw), sigma(nw), zz(npX), pz(nw), GAMMA(nw))
+         zz = z
       END SUBROUTINE allocate_radials
 
 
@@ -105,7 +106,7 @@ MODULE radial
       Print *, ' quad(Int3) =', quad(int3)
       Print *, ' quad(Int4) =', quad(int4)
       ans  = c*(quad(Int1) + kappa*quad(Int2)) - 2.d0*c*c*quad(Int3) &
-               + quad(Int4)
+               - quad(Int4)
 
       End Subroutine rinti 
     
