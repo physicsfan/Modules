@@ -6,7 +6,7 @@
   
    ! Basic Data 
    !> NNNW  -maximum number of orbitals 
-   INTEGER, PARAMETER :: NNNW=127 
+   INTEGER, PARAMETER :: NWX=127 
    !>  key  -- key for encoding data
    INTEGER, PARAMETER :: key = 128 
    !> symlist :: list of symmetries supported in the current version 
@@ -18,8 +18,11 @@
    !Note: index(kaplist, kappa) defines the kappa order in the list. 
 
    ! Parameters for matrix elements 
-   REAL(kind=8) :: cutoff = 1.0d-10 
+   REAL(kind=8) :: cutoff = 1.0d-10
+   REAL(kind=8) :: eps    = 1.0d-8
+   INTEGER :: keysq = 128**2
 
+   
   ! Define UNIT numbers for RANGULAR I/O: 
   INTEGER, PARAMETER :: nfile   = 10 
   INTEGER, PARAMETER :: outfile = 13
@@ -53,6 +56,8 @@
        eight = 8.0d0,    &
        nine  = 9.0d0,    &
        ten   = 10.0d0,   &
+       eleven= 11.0d0,   &
+       tenth = one/ten,  &
        half  = one/two,   &
        third = one/three
 

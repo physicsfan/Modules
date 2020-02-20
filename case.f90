@@ -4,6 +4,7 @@ MODULE case
 
   ! Basic Size dimensions of a calculation
   !> ncore   -- number of core orbitals
+  !> npeel   -- number of peel orbitals
   !> nw      -- number of wavefunctions or orbitals
   !> nblock  -- number of Jblocks of the same total J and parity
   !> lmax    -- maximum value of l quantum number 
@@ -12,7 +13,7 @@ MODULE case
   !> mx      -- maximun number of subshells in a csf (<= NNNW)
   !> ncsf    -- number of CSFs
   !> m_el    -- number of matrix elements
-  INTEGER :: ncore, nw, nblock, lmax, int_num, kmax, ncsf, mx, m_el
+  INTEGER :: ncore, npeel, nw, nblock, lmax, int_num, kmax, ncsf, mx, m_el
 
   ! JBlock data structures
   !> jend    -- array indicating the last CSF in the i'th JBLOCK

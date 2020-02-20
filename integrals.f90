@@ -26,7 +26,7 @@ contains
 
 !>  Generate a list of integral with the following types:
 !> 1. I (or T) integrals  I(ab)
-!> 2. Rk integrals for k= 0,2*kmax of Symmetry Rk(ab,cd)
+!> 2. Rk integrals for k= 0,2*kx of Symmetry Rk(ab,cd)
 
 !> Strategy: Each type of integral has a last value. The 
 !> first category starts at i=1 whereas all others start
@@ -38,7 +38,7 @@ contains
     LOGICAL :: gen
     integer :: i, ia, ib, ic, id, k, n, m
     
-    allocate(Int_end(kmax+2))
+    allocate(Int_end(kx+2))
     
 ! Generate the list of I Integrals that arise from a set of orbitals.
 ! The subroutine has two phases, either return the list with unevaluated
@@ -66,7 +66,7 @@ contains
       ! The subroutine has two phases, either return the list with unevaluated
       ! integrals or a list with evaluated integrals.
       !
-         do k = 0, kmax
+         do k = 0, kx
             do ia = 1, nw
                do ic = ia, nw
                   if (triangrk(nkl(ia), k, nkl(ic))) then
@@ -117,7 +117,7 @@ contains
         end if
     end do  
     istart = int_end(1)+1
-    do k = 0, kmax
+    do k = 0, kx
        do i = istart, Int_end(k+2)
          if (int_varied(i) ) then
            id = ibits(int_label(i),0,7)
@@ -132,7 +132,7 @@ contains
     End subroutine update_int
 
     !> function to find the location of an integral in the list
-    Integer Function index ( k, label )
+    INTEGER FUNCTION INDEX ( k, label )
 
     !> k     -- integral type, k<0 is I integral
     !> index -  index of an integral in canonical order
@@ -153,66 +153,49 @@ contains
 
        
     ! perform binary search
-    im = (il + iu) /2
-    do while(int_label(im) /= label .and. (iu-il) >  0)
-       if (label > int_label(im)) then
-          il = im + 1
-       else
-          iu = im - 1
-       end if
-       im = (il + iu)/2
+    do
+      if (iu-il >  1) then
+         im = (iu + il)/2
+         if ( label > int_label(im)) then
+           il = im
+         else if ( label < int_label(im)) then
+           iu = im
+         else if (label == int_label(im)) then
+           index = im    
+           exit
+         end if
+       else if (iu-il == 1) then
+         if ( label == int_label(iu)) then
+           index = iu
+           exit
+         else if ( label ==  int_label(il)) then
+           index = il 
+           exit
+         else
+            index = -1
+            Print *, index, ' not found'
+            exit
+         end if
+      end if
     end do
 
-    ! return postion of element
-
-    IF(int_label(im) /= label) THEN
-      index = -1
-    else
-      index = im
-   END IF
-
-   
-!!$    do
-!!$      if (iu-il >  1) then
-!!$         im = (iu + il)/2
-!!$         if ( label > int_label(im)) then
-!!$           il = im
-!!$         else if ( label < int_label(im)) then
-!!$           iu = im
-!!$         else if (label == int_label(im)) then
-!!$           index = im    
-!!$           exit
-!!$         end if
-!!$       else if (iu-il == 1) then
-!!$         if ( label == int_label(iu)) then
-!!$           index = iu
-!!$           exit
-!!$         else if ( label ==  int_label(il)) then
-!!$           index = il 
-!!$           exit
-!!$         else
-!!$            index = -1
-!!$            Print *, index, ' not found'
-!!$            exit
-!!$         end if
-!!$      end if
-!!$    end do
-    end function index
+  END FUNCTION index
         
     subroutine write_labels
      
     Integer :: i, lab, k, ia, ib, ic, id, istart, n
 
-    Print *, 'kmax =', kmax, 'Int_end =', int_end(1:kmax+2)
+    Print *, 'kx =', kx, 'Int_end =', int_end(1:kx+2)
     n=1
-    do i =1, Int_end(1)
+    DO i =1, Int_end(1)
         ib = ibits(int_Label(i),0,7)
         ia = ibits(int_label(i),7,7)
         Write (6, FMT="(I2, 2X, 'I(', A4, ',', A4,')', I10, F12.8)" ) n,  el(ia), el(ib), int_label(i), int_value(i)
         n = n+1
-    end do  
+     END DO
+     PRINT *, 'point 1'
     istart = int_end(1)+1
-    do k = 0, kmax
+    do k = 0, kx
        do i = istart, Int_end(k+2)
            id = ibits(int_label(i),0,7)
            ib = ibits(int_label(i),7,7)

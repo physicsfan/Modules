@@ -220,7 +220,7 @@ MODULE radial
 
         call ykf(k, ia, ic)
         
-        int = yk*p(:,ib)*p(:,id)
+        int = yk*(p(:,ib)*p(:,id) + q(:,ib)*q(:,id))
 !       slater  = quad(int)
        ans  = quad(int)
      END SUBROUTINE  slater
@@ -358,7 +358,7 @@ MODULE radial
       INTEGER :: I, MFJ, NRSTLO, KOUNT, IROW, K, NRSTHI, LLO, LHI, LOCNXT, &
            ILIROK, ILDIAG, ILOTHR, n
       REAL(kind=8) :: RAMA, accy
-      INTEGER, DIMENSION(NNNW) :: MF       
+      INTEGER, DIMENSION(NWX) :: MF       
       REAL(kind=8), DIMENSION(MXORD) :: X, DX 
       REAL(kind=8), DIMENSION((MXORD*(MXORD + 1))/2) :: POLYP, POLYQ 
       REAL(kind=8) :: XBAR, PESTL, QESTL, DIFF, DIFFT, DXKMN1, DXIROW, &
