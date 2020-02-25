@@ -109,6 +109,7 @@ CONTAINS
       
       lmax = maxval(nkl)
       kmax = 2*lmax
+      KapX = maxval(NAK, MASK=nak >= 0)
 
     RETURN
     END SUBroutine load_orbs

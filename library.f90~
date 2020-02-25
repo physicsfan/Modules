@@ -226,14 +226,3 @@ END FUNCTION index
     ENDIF
     RETURN  
   END FUNCTION TRIANGRK
-
-
-
-  REAL(kind=8) FUNCTION wt(j, blck)
-    
-    IMPLICIT NONE
-
-    INTEGER, INTENT(in) :: j, blck
-
-
-  END FUNCTION wt

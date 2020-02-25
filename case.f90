@@ -17,7 +17,7 @@ MODULE case
 
   ! JBlock data structures
   !> jend    -- array indicating the last CSF in the i'th JBLOCK
-  !> jblk    -- array for the J-value of each block
+  !> jblk    -- array for the J-value of each block (2J+1 representation)
   !> pblk    -- parity of each block
   !> m_end   -- last matrix element for each block
   INTEGER, DIMENSION(:), ALLOCATABLE :: jend, jblk, pblk, m_end

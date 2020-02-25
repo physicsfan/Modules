@@ -34,7 +34,6 @@ CONTAINS
     !  L o c a l  V a r i a b l e s
     INTEGER      :: blk, coeff_label, dat, i, ia, ib, ic, id, iswap, outfile, tmp
     INTEGER      :: dattmp, j, ja, jb, jprev, k, m, n, nz, nswap, nt, nv
-    CHARACTER(Len=12):: convert
     
     
     ! initialize
@@ -202,14 +201,11 @@ CONTAINS
        END IF
     END DO
     CLOSE(dattmp)
+
     CLOSE(dat)
-
-    WRITE(6, *) 'There are ', TRIM(convert(nblock)), ' blocks'
-    WRITE(6, *) '          ', TRIM(convert(ncsf)), ' CSFs'
-    WRITE(6, *) '          ', TRIM(convert(m)),' matrix elements'
-
     
     DEALLOCATE(coeff, label, tshell, tindex, tcoeff, vcoeff, vindex, m_end)
+
     CALL deallocate_racah
     
   END SUBROUTINE genmat
@@ -261,5 +257,16 @@ CONTAINS
     WRITE(6, *) '          ', TRIM(convert(m)),' matrix elements'
     
   END SUBROUTINE readmat
+
+
+  
+  SUBROUTINE mat_summary
+
+    CHARACTER(Len=12):: convert
+
+    WRITE(6, *) 'There are ', TRIM(convert(nblock)), ' blocks'
+    WRITE(6, *) '          ', TRIM(convert(ncsf)), ' CSFs'
+    WRITE(6, *) '          ', TRIM(convert(m_end(nblock))),' matrix elements'
+  END SUBROUTINE mat_summary
   
 END MODULE matrix_elements

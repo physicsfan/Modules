@@ -22,7 +22,7 @@
    REAL(kind=8) :: eps    = 1.0d-8
 
    
-  ! Define UNIT numbers for I/O: 
+  ! Define UNIT numbers for RANGULAR I/O: 
   INTEGER, PARAMETER :: nfile   = 10 
   INTEGER, PARAMETER :: outfile = 13
   INTEGER, PARAMETER :: infile  = 14 
