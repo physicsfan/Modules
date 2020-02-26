@@ -119,15 +119,15 @@
         nkja = nkj(ia)
 !         .. I(a, a) 
         coeff_label = ia*key+ia
-        tindex = index(-1,coeff_label)
+        tindex = iindex(-1,coeff_label)
         ecore = ecore + qa*int_value(tindex)
 !         .. F0(a,a)
         coeff_label = ((ia*key+ia)*key +ia)*key +ia
-        vindex = index(0,coeff_label)
+        vindex = iindex(0,coeff_label)
         ecore = ecore + 0.5*qa*qa*int_value(vindex)
 !         .. Fk(a,a)
         Do k = 2, nkj(ia)-1, 2
-          vindex = index(k,coeff_label)
+          vindex = iindex(k,coeff_label)
           ecore = ecore + fco(k,1, ia,ia)* int_value(vindex)
         End do
         DO IB = IA+1, ncore
@@ -135,7 +135,7 @@
           if (qb == 0) cycle
 !         .. F0(a,b)
           coeff_label = ((ia*key+ia)*key +ib)*key +ib
-          vindex = index(0,coeff_label)
+          vindex = iindex(0,coeff_label)
           ecore = ecore + qa*qb*int_value(vindex)
 !          .. GK(a,b)
           nkjb= nkj(ib)
@@ -146,7 +146,7 @@
           ENDIF 
           do k = kmin, (nkja+nkjb)/2, 2
             coeff_label = ((ia*key+ib)*key +ia)*key +ib
-            vindex = INDEX(k,coeff_label)
+            vindex = iINDEX(k,coeff_label)
             IF(vindex == -1) cycle
             ecore = ecore - qa*qb*clrx(nak(ia),k,nak(ib))**2 &
                             *int_value(vindex)
@@ -179,20 +179,20 @@
 !              ..  shell outside the core
 !              .. I(a, a) 
                coeff_label = ia*key+ia
-               tindex = index(-1,coeff_label)
+               tindex = iindex(-1,coeff_label)
                emt(j) = emt(j) + qa*int_value(tindex)
 !              .. F0(a,a)
                coeff_label = ((ia*key+ia)*key +ia)*key +ia
-               vindex = index(0,coeff_label)
+               vindex = iindex(0,coeff_label)
                emt(j) = emt(j) + 0.5d0*qa*qa*int_value(vindex)
 !              .. Fk(a,a)
                Do k = 2, nkj(ia)-1, 2
-                 vindex = index(k, coeff_label)
+                 vindex = iindex(k, coeff_label)
                  emt(j) = emt(j) + fco(k, j, ia, ia)*int_value(vindex)
                End do
 !              .. F0(a,b)
                coeff_label = ((ia*key+ia)*key +ib)*key +ib
-               vindex = INDEX(0,coeff_label)
+               vindex = iINDEX(0,coeff_label)
                IF (vindex == -1)  stop 'not found'
                emt(j) = emt(j) + qa*qb*int_value(vindex)
              end if
@@ -206,7 +206,7 @@
                ENDIF 
                DO k = kmin, (nkja+nkjb)/2, 2
                   coeff_label = ((ia*key+ib)*key +ia)*key +ib
-                  vindex = INDEX(k,coeff_label)
+                  vindex = iINDEX(k,coeff_label)
                   IF(vindex == -1) stop 'Not found'
                  emt(j) = emt(j) - qa*qb*clrx(nak(ia), k, nak(ib))**2 &
                       *int_value(vindex)

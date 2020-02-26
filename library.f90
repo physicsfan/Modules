@@ -115,10 +115,10 @@ END SUBROUTINE getrlist
 
 
 !> function to find the location of an integral in the list
-INTEGER FUNCTION INDEX ( k, label )
+INTEGER FUNCTION IINDEX ( k, label )
   USE integrals,  ONLY: int_label, int_end  
   !> k     -- integral type, k<0 is I integral
-  !> index -  index of an integral in canonical order
+  !> iindex -  iindex of an integral in canonical order
   !           (ia <= ib; if k <0)
   !           (ia <= ic; ib <= id; ia <= ib  if k>=0)
   INTEGER, INTENT(in)  :: k, label
@@ -144,25 +144,25 @@ INTEGER FUNCTION INDEX ( k, label )
         ELSE IF ( label < int_label(im)) THEN
            iu = im
         ELSE IF (label == int_label(im)) THEN
-           index = im    
+           iindex = im    
            EXIT
         END IF
      ELSE IF (iu-il == 1) THEN
         IF ( label == int_label(iu)) THEN
-           index = iu
+           iindex = iu
            EXIT
         ELSE IF ( label ==  int_label(il)) THEN
-           index = il 
+           iindex = il 
            EXIT
         ELSE
-           index = -1
-           PRINT *, index, ' not found'
+           iindex = -1
+           PRINT *, iindex, ' not found'
            EXIT
         END IF
      END IF
   END DO
   
-END FUNCTION index
+END FUNCTION iindex
 
 
   

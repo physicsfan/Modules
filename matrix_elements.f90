@@ -20,7 +20,7 @@ MODULE matrix_elements
 
   ! Needed functions
   !> index  -- finds the location of an integral in the integral list
-  integer, external :: index 
+  integer, external :: iindex 
 
   
 CONTAINS
@@ -80,7 +80,7 @@ CONTAINS
                    ia = iswap
                 ENDIF
                 coeff_label= ia*key + ib
-                tindex(nt) = INDEX(-1, coeff_label)     ! found in genint      
+                tindex(nt) = iINDEX(-1, coeff_label)     ! found in genint      
                 tcoeff(nt) = tshell(1)                                
              ENDIF
              !
@@ -124,7 +124,7 @@ CONTAINS
                           ic = iswap
                        END IF
                        coeff_label = ((ia*key+ic)*key+ib)*key+id                        
-                       vindex(nv) = INDEX(k,coeff_label)
+                       vindex(nv) = iINDEX(k,coeff_label)
                        vcoeff(nv) = coeff(j)
                     ENDIF
                  ENDIF

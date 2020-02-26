@@ -29,7 +29,9 @@
   INTEGER, PARAMETER :: isofile = 22
   INTEGER, PARAMETER :: rwfndat = 23
   INTEGER, PARAMETER :: rwfnout = 24
-  INTEGER, parameter :: rwfnin  = 25
+  INTEGER, PARAMETER :: rwfnin  = 25
+  INTEGER, PARAMETER :: logfile = 26
+  INTEGER, PARAMETER :: sumfile = 27
   
   ! Define UNIT numbers for I/O in grasp:
   INTEGER, PARAMETER ::  istde=0, istdi=5,  istdo=6
